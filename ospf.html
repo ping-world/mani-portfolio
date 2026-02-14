@@ -1,26 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OSPF Lab | Mani</title>
+    <title>Enterprise OSPFv2 & OSPFv3 Multi-Area Lab</title>
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-    <h1>OSPF Multi-Area Lab</h1>
 
-    <h3>Topology</h3>
-    <p>Area 0 backbone with Area 1 stub configuration.</p>
+<h1>OSPF Multi-Area Lab</h1>
 
-    <h3>Key Configuration</h3>
+<section>
+    <h2>Topology</h2>
+    <p>
+        Area 0 backbone with Area 1 configured as stub.
+        Three routers connected in linear topology:
+    </p>
+
+    <pre>
+R1 ---- R2 ---- R3
+Area0   Area0   Area1 (Stub)
+    </pre>
+</section>
+
+<section>
+    <h2>Key Configuration</h2>
+
+    <h3>R1 & R2 (Area 0)</h3>
     <pre>
 router ospf 1
-network 10.0.0.0 0.0.0.255 area 0
+ router-id 1.1.1.1
+ network 10.0.0.0 0.0.0.255 area 0
     </pre>
 
-    <h3>Verification</h3>
+    <h3>R3 (Area 1 Stub)</h3>
+    <pre>
+router ospf 1
+ router-id 3.3.3.3
+ network 10.1.0.0 0.0.0.255 area 1
+ area 1 stub
+    </pre>
+</section>
+
+<section>
+    <h2>Verification</h2>
     <pre>
 show ip ospf neighbor
+show ip ospf database
 show ip route ospf
+show ip protocols
     </pre>
+</section>
+
+<section>
+    <h2>Expected Behavior</h2>
+    <ul>
+        <li>R3 receives default route from ABR</li>
+        <li>No external LSAs inside stub area</li>
+        <li>Full adjacency between Area 0 routers</li>
+    </ul>
+</section>
+
+<br>
+<a href="index.html">← Back to Home</a>
+
 </body>
 </html>

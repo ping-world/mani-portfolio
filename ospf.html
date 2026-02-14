@@ -12,13 +12,32 @@
 <section>
     <h2>Topology</h2>
     <p>
-        Area 0 backbone with Area 1 configured as stub.
-        Three routers connected in linear topology:
+        Multi-area OSPF network with Area 0 as the backbone (20.20.20.0/24 segment).
+         <strong>Area 51</strong> is dual-homed to the backbone via R2 and R4. 
+         <strong>Area 3</strong> is a multi-access network off R3. <strong>Area 2</strong> is a linear chain off R3. R1 provides external Internet connectivity.
     </p>
 
     <pre>
-R1 ---- R2 ---- R3
-Area0   Area0   Area1 (Stub)
+<pre>
+        Internet
+           |
+          (R1)
+           |
+  [   Area 0 Segment   ]
+  [   20.20.20.0/24    ] -- (R3) -- (H1)
+   /               \         |   \
+ (R4)             (R2)       |    \
+   \               /      Area 3  Area 2
+    \             /      (Switch)  (R7)
+     \           /        /    \     |
+      \         /       (R9)  (R10) (R8)
+       \       /
+     [  Area 51  ]
+        (R5)
+         |
+        (R6)
+</pre>
+
     </pre>
 </section>
 

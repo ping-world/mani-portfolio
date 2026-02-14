@@ -1,33 +1,181 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Mani | Network Engineer</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mani R | Network Engineer</title>
+    <style>
+        /* --- 1. CORE PAGE STYLING --- */
+        body {
+            font-family: 'Consolas', 'Monaco', monospace; /* Terminal font */
+            margin: 0;
+            background-color: #0d1117; /* Dark background */
+            color: #c9d1d9; /* Light grey text */
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- 2. NETWORK BACKGROUND LAYER --- */
+        .network-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* Behind text */
+            opacity: 0.35; /* Faded so text is readable */
+            pointer-events: none;
+        }
+
+        /* Device Styles */
+        .device {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #fff;
+            background: #161b22;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+
+        /* Router: Circular with Blue Border */
+        .router {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid #58a6ff; /* Cisco Blue */
+        }
+        .router::after { content: "R"; }
+
+        /* Switch: Square with Green Border */
+        .switch {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #2ea043; /* Green */
+            border-radius: 4px;
+        }
+        .switch::after { content: "SW"; font-size: 10px; }
+
+        /* Cables */
+        .cable {
+            position: absolute;
+            background: #30363d;
+            height: 2px;
+            z-index: 1;
+        }
+
+        /* The "Ping" Packet Animation */
+        .packet {
+            position: absolute;
+            width: 6px;
+            height: 6px;
+            background-color: #f2cc60; /* Yellow packet */
+            border-radius: 50%;
+            box-shadow: 0 0 8px #f2cc60;
+            opacity: 0;
+        }
+
+        /* --- POSITIONING --- */
+        #core-sw { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #r1 { top: 20%; left: 50%; transform: translate(-50%, 0); } /* Top */
+        #r2 { top: 50%; left: 20%; transform: translate(0, -50%); } /* Left */
+        #r3 { top: 50%; left: 80%; transform: translate(-100%, -50%); } /* Right */
+        #r4 { top: 80%; left: 50%; transform: translate(-50%, -100%); } /* Bottom */
+
+        /* Cables */
+        /* Vertical Top */
+        .link-v-top { top: 25%; left: 50%; width: 2px; height: 25%; transform: translateX(-50%); }
+        .link-v-top .packet { animation: pingVertical 2s infinite linear; left: -2px; }
+
+        /* Vertical Bottom */
+        .link-v-btm { top: 50%; left: 50%; width: 2px; height: 28%; transform: translateX(-50%); }
+        .link-v-btm .packet { animation: pingVertical 3s infinite linear; left: -2px; }
+
+        /* Horizontal Left */
+        .link-h-left { top: 50%; left: 24%; width: 26%; transform: translateY(-50%); }
+        .link-h-left .packet { animation: pingHorizontalRev 3s infinite linear; top: -2px; }
+
+        /* Horizontal Right */
+        .link-h-right { top: 50%; left: 50%; width: 28%; transform: translateY(-50%); }
+        .link-h-right .packet { animation: pingHorizontal 2.5s infinite linear; top: -2px; }
+
+        /* Animations */
+        @keyframes pingVertical { 0% { top: 0%; opacity: 1; } 100% { top: 100%; opacity: 0; } }
+        @keyframes pingHorizontal { 0% { left: 0%; opacity: 1; } 100% { left: 100%; opacity: 0; } }
+        @keyframes pingHorizontalRev { 0% { left: 100%; opacity: 1; } 100% { left: 0%; opacity: 0; } }
+
+        /* --- 3. TEXT CONTENT STYLING --- */
+        .content-container {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 40px;
+            background: rgba(13, 17, 23, 0.9); /* Dark semi-transparent backing */
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 { color: #58a6ff; font-size: 3rem; margin-bottom: 10px; text-shadow: 0 0 10px rgba(88, 166, 255, 0.4); }
+        h2 { color: #8b949e; font-size: 1.2rem; margin-top: 0; font-weight: normal; border-bottom: 1px solid #30363d; padding-bottom: 20px; }
+        h3 { color: #79c0ff; margin-top: 0; }
+        
+        section { margin-top: 30px; margin-bottom: 30px; }
+        p { line-height: 1.6; }
+
+        a { color: #2ea043; text-decoration: none; font-weight: bold; transition: color 0.2s; }
+        a:hover { color: #3fb950; text-decoration: underline; }
+        
+        ul { list-style-type: square; padding-left: 20px; }
+        li { margin-bottom: 10px; }
+    </style>
 </head>
 
 <body>
-    <h1>Mani</h1>
-    <h2>Network Engineer | CCNP Candidate</h2>
 
-    <section>
-        <h3>About Me</h3>
-        <p>
-            Network Engineer focused on enterprise routing,
-            OSPF design, EIGRP optimization, and scalable network architecture.
-        </p>
-    </section>
+    <!-- VISUAL NETWORK BACKGROUND -->
+    <div class="network-bg">
+        <div id="r1" class="device router"></div>
+        <div id="r2" class="device router"></div>
+        <div id="core-sw" class="device switch"></div>
+        <div id="r3" class="device router"></div>
+        <div id="r4" class="device router"></div>
 
-    <section>
-        <h3>Routing Labs</h3>
-        <ul>
-            <li>
-                <a href="ospf.html">
-                    Enterprise OSPFv2 & OSPFv3 Multi-Area Lab
-                </a>
-            </li>
-            <li>EIGRP Unequal Cost Load Balancing (Coming Soon)</li>
-        </ul>
-    </section>
+        <!-- Cables & Packets -->
+        <div class="cable link-v-top"><div class="packet"></div></div>
+        <div class="cable link-v-btm"><div class="packet"></div></div>
+        <div class="cable link-h-left"><div class="packet"></div></div>
+        <div class="cable link-h-right"><div class="packet"></div></div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="content-container">
+        <h1>Mani R</h1>
+        <h2>Network Engineer | CCNP Candidate</h2>
+
+        <section>
+            <h3>About Me</h3>
+            <p>
+                Network Engineer focused on enterprise routing,
+                OSPF design, EIGRP optimization, and scalable network architecture.
+            </p>
+        </section>
+
+        <section>
+            <h3>Routing Labs</h3>
+            <ul>
+                <li>
+                    <a href="ospf.html">
+                        Enterprise OSPFv2 & OSPFv3 Multi-Area Lab
+                    </a>
+                </li>
+                <li>EIGRP Unequal Cost Load Balancing (Coming Soon)</li>
+            </ul>
+        </section>
+    </div>
 
 </body>
 </html>

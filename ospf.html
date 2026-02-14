@@ -1,86 +1,67 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Enterprise OSPFv2 & OSPFv3 Multi-Area Lab</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSPF Multi-Area Lab</title>
+    <!-- Link to the shared style file -->
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<h1>OSPF Multi-Area Lab</h1>
+    <!-- 1. PASTE THIS SECTION: This creates the visual background -->
+    <div class="network-bg">
+        <!-- Devices -->
+        <div id="r1" class="device router"></div>
+        <div id="r2" class="device router"></div>
+        <div id="core-sw" class="device switch"></div> <!-- Note: ID must match style.css -->
+        <div id="r3" class="device router"></div>
+        <div id="r4" class="device router"></div>
 
-<section>
-    <h2>Topology</h2>
-    <p>
-        Multi-area OSPF network with Area 0 as the backbone (20.20.20.0/24 segment).
-         <strong>Area 51</strong> is dual-homed to the backbone via R2 and R4. 
-         <strong>Area 3</strong> is a multi-access network off R3. <strong>Area 2</strong> is a linear chain off R3. R1 provides external Internet connectivity.
-    </p>
+        <!-- Cables & Packets -->
+        <div class="cable link-v-top"><div class="packet"></div></div>
+        <div class="cable link-v-btm"><div class="packet"></div></div>
+        <div class="cable link-h-left"><div class="packet"></div></div>
+        <div class="cable link-h-right"><div class="packet"></div></div>
+    </div>
+    <!-- End of background section -->
 
-    <pre>
-<pre>
-        Internet
-           |
-          (R1)
-           |
-  [   Area 0 Segment   ]
-  [   20.20.20.0/24    ] -- (R3) -- (H1)
-   /               \         |   \
- (R4)             (R2)       |    \
-   \               /      Area 3  Area 2
-    \             /      (Switch)  (R7)
-     \           /        /    \     |
-      \         /       (R9)  (R10) (R8)
-       \       /
-     [  Area 51  ]
-        (R5)
-         |
-        (R6)
-</pre>
+    <!-- 2. MAIN CONTENT -->
+    <div class="content-container">
+        <h1>OSPF Multi-Area Lab</h1>
+        <p><a href="index.html">← Back to Home</a></p>
 
-    </pre>
-</section>
+        <section>
+            <h2>Topology Configuration</h2>
+            <p>
+                Multi-area OSPF network with Area 0 as the backbone (20.20.20.0/24 segment).
+                <strong>Area 51</strong> is dual-homed to the backbone via R2 and R4. 
+                <strong>Area 3</strong> is a multi-access network off R3. 
+                <strong>Area 2</strong> is a linear chain off R3. 
+                R1 provides external Internet connectivity.
+            </p>
 
-<section>
-    <h2>Key Configuration</h2>
-
-    <h3>R1 & R2 (Area 0)</h3>
-    <pre>
-router ospf 1
- router-id 1.1.1.1
- network 10.0.0.0 0.0.0.255 area 0
-    </pre>
-
-    <h3>R3 (Area 1 Stub)</h3>
-    <pre>
-router ospf 1
- router-id 3.3.3.3
- network 10.1.0.0 0.0.0.255 area 1
- area 1 stub
-    </pre>
-</section>
-
-<section>
-    <h2>Verification</h2>
-    <pre>
-show ip ospf neighbor
-show ip ospf database
-show ip route ospf
-show ip protocols
-    </pre>
-</section>
-
-<section>
-    <h2>Expected Behavior</h2>
-    <ul>
-        <li>R3 receives default route from ABR</li>
-        <li>No external LSAs inside stub area</li>
-        <li>Full adjacency between Area 0 routers</li>
-    </ul>
-</section>
-
-<br>
-<a href="index.html">← Back to Home</a>
+            <pre>
+            Internet
+               |
+              (R1)
+               |
+      [   Area 0 Segment   ]
+      [   20.20.20.0/24    ] -- (R3) -- (H1)
+       /               \         |   \
+     (R4)             (R2)       |    \
+       \               /      Area 3  Area 2
+        \             /      (Switch)  (R7)
+         \           /        /    \     |
+          \         /       (R9)  (R10) (R8)
+           \       /
+         [  Area 51  ]
+            (R5)
+             |
+            (R6)
+            </pre>
+        </section>
+    </div>
 
 </body>
 </html>

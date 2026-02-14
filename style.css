@@ -1,210 +1,115 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<style>
-    /* --- CORE PAGE STYLING --- */
-    body {
-        font-family: 'Consolas', 'Monaco', monospace; /* Terminal font */
-        margin: 0;
-        background-color: #0d1117; /* Dark background */
-        color: #c9d1d9; /* Light grey text */
-        overflow-x: hidden; /* Prevent scrollbars from absolute positioning */
-    }
+/* --- CORE PAGE STYLING --- */
+body {
+    font-family: 'Consolas', 'Monaco', monospace;
+    margin: 0;
+    background-color: #0d1117;
+    color: #c9d1d9;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
 
-    /* --- NETWORK VISUALIZATION LAYER --- */
-    .network-bg {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: -1; /* Puts this behind your text */
-        opacity: 0.4; /* Faded so text is readable */
-        pointer-events: none;
-    }
+/* --- NETWORK VISUALIZATION LAYER --- */
+.network-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    opacity: 0.35;
+    pointer-events: none;
+}
 
-    /* Device Styles */
-    .device {
-        position: absolute;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: bold;
-        color: #fff;
-        box-shadow: 0 0 15px rgba(0,0,0,0.5);
-        z-index: 2;
-    }
+/* Device Styles */
+.device {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #fff;
+    background: #161b22;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    z-index: 2;
+}
 
-    /* Router: Circular with Blue Border */
-    .router {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: #0d1117;
-        border: 2px solid #58a6ff; /* Cisco Blue */
-    }
-    .router::after { content: "R"; }
+.router {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid #58a6ff;
+}
+.router::after { content: "R"; }
 
-    /* Switch: Square with Green Border */
-    .switch {
-        width: 50px;
-        height: 50px;
-        background: #0d1117;
-        border: 2px solid #2ea043; /* Green */
-        border-radius: 4px;
-    }
-    .switch::after { content: "SW"; font-size: 12px; }
+.switch {
+    width: 40px;
+    height: 40px;
+    border: 2px solid #2ea043;
+    border-radius: 4px;
+}
+.switch::after { content: "SW"; font-size: 10px; }
 
-    /* Connecting Cables */
-    .cable {
-        position: absolute;
-        background: #30363d;
-        height: 2px;
-        transform-origin: 0 0;
-        z-index: 1;
-        overflow: visible; /* Allow packet to be seen */
-    }
+/* Cables */
+.cable {
+    position: absolute;
+    background: #30363d;
+    height: 2px;
+    z-index: 1;
+}
 
-    /* The "Ping" Packet Animation */
-    .packet {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        background-color: #f2cc60; /* Yellow packet */
-        border-radius: 50%;
-        top: -2px; /* Center on line */
-        box-shadow: 0 0 8px #f2cc60;
-        opacity: 0;
-    }
+/* Packets */
+.packet {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #f2cc60;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #f2cc60;
+    opacity: 0;
+}
 
-    /* Animation Definitions */
-    @keyframes pingTravel {
-        0% { left: 0%; opacity: 1; }
-        90% { opacity: 1; }
-        100% { left: 100%; opacity: 0; }
-    }
+/* --- POSITIONING --- */
+#core-sw { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+#r1 { top: 20%; left: 50%; transform: translate(-50%, 0); }
+#r2 { top: 50%; left: 20%; transform: translate(0, -50%); }
+#r3 { top: 50%; left: 80%; transform: translate(-100%, -50%); }
+#r4 { top: 80%; left: 50%; transform: translate(-50%, -100%); }
 
-    @keyframes pingTravelReverse {
-        0% { left: 100%; opacity: 1; }
-        90% { opacity: 1; }
-        100% { left: 0%; opacity: 0; }
-    }
+/* Link Lines */
+.link-v-top { top: 25%; left: 50%; width: 2px; height: 25%; transform: translateX(-50%); }
+.link-v-btm { top: 50%; left: 50%; width: 2px; height: 28%; transform: translateX(-50%); }
+.link-h-left { top: 50%; left: 24%; width: 26%; transform: translateY(-50%); }
+.link-h-right { top: 50%; left: 50%; width: 28%; transform: translateY(-50%); }
 
-    /* --- SPECIFIC TOPOLOGY POSITIONS --- */
-    /* Central Switch */
-    #sw1 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+/* Animations */
+@keyframes pingVertical { 0% { top: 0%; opacity: 1; } 100% { top: 100%; opacity: 0; } }
+@keyframes pingHorizontal { 0% { left: 0%; opacity: 1; } 100% { left: 100%; opacity: 0; } }
+@keyframes pingHorizontalRev { 0% { left: 100%; opacity: 1; } 100% { left: 0%; opacity: 0; } }
 
-    /* Routers around the switch */
-    #r1 { top: 20%; left: 50%; transform: translate(-50%, 0); } /* Top */
-    #r2 { top: 50%; left: 20%; transform: translate(0, -50%); } /* Left */
-    #r3 { top: 50%; left: 80%; transform: translate(-100%, -50%); } /* Right */
-    #r4 { top: 80%; left: 50%; transform: translate(-50%, -100%); } /* Bottom */
+.link-v-top .packet { animation: pingVertical 2s infinite linear; left: -2px; }
+.link-v-btm .packet { animation: pingVertical 3s infinite linear; left: -2px; }
+.link-h-left .packet { animation: pingHorizontalRev 3s infinite linear; top: -2px; }
+.link-h-right .packet { animation: pingHorizontal 2.5s infinite linear; top: -2px; }
 
-    /* Cables connecting Center SW to Routers */
-    /* Vertical Line to R1 */
-    #link1 { top: 25%; left: 50%; width: 2px; height: 23%; background: #30363d; } 
-    #link1 .packet { animation: pingTravel 2s infinite linear; top: 0; left: -2px; width: 6px; height: 6px; } 
-    /* NOTE: Vertical lines need different animation logic, using 'top' instead of 'left'. 
-       For simplicity in this demo, I will use rotated horizontal lines or just animate 'top'. */
-    
-    /* Let's use simple geometric lines with CSS rotation for cleaner code */
-    
-    /* Link 1: SW1 to R2 (Horizontal Left) */
-    .cable.horizontal-left { top: 52%; left: 24%; width: 24%; }
-    .cable.horizontal-left .packet { animation: pingTravelReverse 3s infinite linear; }
+/* --- TEXT CONTENT STYLING --- */
+.content-container {
+    position: relative;
+    z-index: 10;
+    max-width: 800px;
+    margin: 60px auto;
+    padding: 40px;
+    background: rgba(13, 17, 23, 0.9);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    backdrop-filter: blur(5px);
+}
 
-    /* Link 2: SW1 to R3 (Horizontal Right) */
-    .cable.horizontal-right { top: 52%; left: 52%; width: 25%; }
-    .cable.horizontal-right .packet { animation: pingTravel 2.5s infinite linear; }
-
-    /* Link 3: SW1 to R1 (Vertical Top) */
-    .cable.vertical-top { top: 25%; left: 50%; width: 2px; height: 25%; }
-    .cable.vertical-top .packet { animation: pingTravelVertical 2s infinite linear; left: -2px; }
-
-    /* Link 4: SW1 to R4 (Vertical Bottom) */
-    .cable.vertical-bottom { top: 52%; left: 50%; width: 2px; height: 25%; }
-    .cable.vertical-bottom .packet { animation: pingTravelVertical 3.5s infinite linear; left: -2px; }
-
-    @keyframes pingTravelVertical {
-        0% { top: 0%; opacity: 1; }
-        100% { top: 100%; opacity: 0; }
-    }
-
-    /* --- CONTENT CONTAINER STYLING --- */
-    .content-container {
-        position: relative;
-        z-index: 10;
-        margin: 40px;
-        background: rgba(13, 17, 23, 0.85); /* Semi-transparent backing */
-        padding: 40px;
-        border: 1px solid #30363d;
-        border-radius: 8px;
-        backdrop-filter: blur(4px); /* Blurs the network behind the text */
-    }
-
-    h1 { color: #58a6ff; text-shadow: 0 0 10px #58a6ff; }
-    h2 { color: #79c0ff; border-bottom: 1px solid #30363d; padding-bottom: 5px; }
-    pre { background: #161b22; padding: 15px; border: 1px solid #30363d; border-radius: 4px; color: #79c0ff; }
-
-</style>
-</head>
-<body>
-
-    <!-- VISUAL NETWORK BACKGROUND -->
-    <div class="network-bg">
-        <!-- Devices -->
-        <div id="r1" class="device router"></div>
-        <div id="r2" class="device router"></div>
-        <div id="sw1" class="device switch"></div>
-        <div id="r3" class="device router"></div>
-        <div id="r4" class="device router"></div>
-
-        <!-- Cables & Pings -->
-        <!-- Left Link -->
-        <div class="cable horizontal-left"><div class="packet"></div></div>
-        <!-- Right Link -->
-        <div class="cable horizontal-right"><div class="packet"></div></div>
-        <!-- Top Link -->
-        <div class="cable vertical-top"><div class="packet"></div></div>
-        <!-- Bottom Link -->
-        <div class="cable vertical-bottom"><div class="packet"></div></div>
-    </div>
-
-    <!-- MAIN TEXT CONTENT -->
-    <div class="content-container">
-        <h1>OSPF Multi-Area Lab</h1>
-
-        <section>
-            <h2>Topology Configuration</h2>
-            <p>
-                Multi-area OSPF network with Area 0 as the backbone (20.20.20.0/24 segment).
-                <strong>Area 51</strong> is dual-homed to the backbone via R2 and R4. 
-                <strong>Area 3</strong> is a multi-access network off R3. 
-                <strong>Area 2</strong> is a linear chain off R3. 
-                R1 provides external Internet connectivity.
-            </p>
-
-            <pre>
-            Internet
-               |
-              (R1)
-               |
-      [   Area 0 Segment   ]
-      [   20.20.20.0/24    ] -- (R3) -- (H1)
-       /               \         |   \
-     (R4)             (R2)       |    \
-       \               /      Area 3  Area 2
-        \             /      (Switch)  (R7)
-         \           /        /    \     |
-          \         /       (R9)  (R10) (R8)
-           \       /
-         [  Area 51  ]
-            (R5)
-             |
-            (R6)
-            </pre>
-        </section>
-    </div>
-
-</body>
-</html>
+h1 { color: #58a6ff; font-size: 3rem; margin-bottom: 10px; }
+h2 { color: #8b949e; font-size: 1.2rem; border-bottom: 1px solid #30363d; padding-bottom: 20px; }
+h3 { color: #79c0ff; }
+section { margin-top: 30px; margin-bottom: 30px; }
+p { line-height: 1.6; }
+a { color: #2ea043; text-decoration: none; font-weight: bold; }
+a:hover { color: #3fb950; text-decoration: underline; }
+ul { list-style-type: square; padding-left: 20px; }
+li { margin-bottom: 10px; }

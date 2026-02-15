@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSPF Multi-Area Lab (CCNP-style)</title>
+
+  <!-- OSPF page is in /ospf/, style.css is one level up -->
+  <link rel="stylesheet" href="../style.css" />
+
+  <!-- Small page-only polish (optional) -->
+  <style>
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #79c0ff; }
+    summary strong { color: #58a6ff; }
+    pre {
+      white-space: pre;
+      overflow-x: auto;
+      background: rgba(22, 27, 34, 0.85);
+      padding: 14px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+    }
+    code {
+      color: #79c0ff;
+    }
+    /* Make lists read clean on dark background */
+    ul, ol { line-height: 1.6; }
+  </style>
+</head>
+
+<body>
+  <!-- BACKGROUND LAYER (must exist on every page that wants the background) -->
+  <div class="network-bg">
+    <!-- Devices (IDs must match what your style.css positions) -->
+    <div id="r1" class="device router"></div>
+    <div id="r2" class="device router"></div>
+    <div id="core-sw" class="device switch"></div>
+    <div id="r3" class="device router"></div>
+    <div id="r4" class="device router"></div>
+
+    <!-- Cables & packets (classes must match what your style.css styles/animates) -->
+    <div class="cable link-v-top"><div class="packet"></div></div>
+    <div class="cable link-v-btm"><div class="packet"></div></div>
+    <div class="cable link-h-left"><div class="packet"></div></div>
+    <div class="cable link-h-right"><div class="packet"></div></div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div class="content-container">
+    <h1>OSPF Multi-Area Lab</h1>
+    <p><a href="../index.html">← Back to Home</a></p>
+
+    <section>
+      <h2>Project Overview</h2>
+      <p>
+        This is a CCNP-style, multi-area OSPF lab built in GNS3 to demonstrate hierarchical design,
+        LSA control (stub/NSSA), DR/BDR behavior on broadcast segments, route summarization, security,
+        and a virtual-link recovery scenario.
+      </p>
+    </section>
+
+    <section>
+      <h2>Topology</h2>
+      <p>
+        14 routers + 2 Ethernet switches (GNS3 “Ethernet switch” nodes).
+      </p>
+
+      <details open>
+        <summary><strong>Core (Area 0)</strong></summary>
+        <ul>
+          <li>R1—R2—R3—R4 in a ring.</li>
+          <li>“CORE-LAN” broadcast segment on SW1 in Area 0.</li>
+        </ul>
+      </details>
+
+      <details open>
+        <summary><strong>Branches (multi-area)</strong></summary>
+        <ul>
+          <li>Area 10 (Totally Stub): R2 (ABR) connects to R5 and R6.</li>
+          <li>Area 20 (NSSA): R3 (ABR) connects to R9 (internal) and R10 (ASBR doing redistribution); NSSA externals are Type-7 inside the NSSA and get translated to Type-5 toward the rest of the domain by the translating ABR.</li>
+          <li>Area 30 (Normal): R4 (ABR) connects to R11 and R12 via SW2 (broadcast segment to practice DR tuning).</li>
+          <li>Area 40 (Normal transit): R4 connects to R7; used as the transit area for the virtual-link scenario.</li>
+          <li>Area 50 (Remote normal): R7 (ABR) connects to R8; restored to Area 0 connectivity via virtual link (a common “fix” when an area isn’t physically attached to Area 0).</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary><strong>External / “ISP”</strong></summary>
+        <ul>
+          <li>R10 connects to R13 (ISP simulation). Create static routes on R13 and redistribute at R10.</li>
+        </ul>
+      </details>
+
+      <details>
+        <summary><strong>ASCII sketch</strong></summary>
+        <pre>
+                (SW1 - Area 0 broadcast)
+               R1----\
+               R2-----SW1-----R3
+                \            /
+                 \          /
+                  ----R4----
+
+Area 10 (totally stub)          Area 20 (NSSA)                Area 30 (normal)
+R2(ABR)---R5---Lo/LANs          R3(ABR)---R9---Lo/LANs        R4(ABR)---SW2---R11
+   \------R6---Lo/LANs             \----R10(ASBR)---R13(ISP)             \---R12
+
+Virtual-link path
+R4(Area0/40 ABR)---Area 40---R7(Area40/50 ABR)---Area 50---R8
+        </pre>
+      </details>
+    </section>
+
+    <section>
+      <h2>Addressing & Area Plan</h2>
+      <ul>
+        <li>Loopbacks (Router-IDs + test targets): <code>10.255.&lt;router#&gt;.1/32</code> (e.g., R1 Lo0 = 10.255.1.1/32).</li>
+        <li>P2P links: <code>10.&lt;area&gt;.&lt;link#&gt;.0/31</code> (or /30 if preferred).</li>
+        <li>Optional LANs behind branches: <code>10.&lt;area&gt;.&lt;router#&gt;.0/24</code> (loopback or dummy LAN).</li>
+        <li>Areas: 0 (core + SW1), 10 (totally stub), 20 (NSSA), 30 (normal + SW2), 40 (transit), 50 (remote via virtual-link).</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Implementation “Tickets” (What I built + verified)</h2>
+      <ol>
+        <li><strong>Baseline build:</strong> hostnames, disable DNS lookup, Loopback0 router-id, IP addressing, ping reachability to loopbacks.</li>
+        <li><strong>Multi-area OSPF foundation:</strong> single process, correct area placement, passive-interface default with selective unpassive on neighbor links.</li>
+        <li><strong>DR/BDR & network types:</strong> tune DR/BDR on SW1 and SW2 using OSPF priority; validate with <code>show ip ospf neighbor</code>.</li>
+        <li><strong>Area 10 totally stub:</strong> confirm branch routers learn a default route (instead of full inter-area/external detail), matching stub/totally-stub behavior.</li>
+        <li><strong>Area 20 NSSA + redistribution:</strong> inject ISP routes at R10; prove Type-7 inside NSSA and Type-5 outside via ABR translation.</li>
+        <li><strong>Summarization:</strong> inter-area summarization on ABRs (<code>area &lt;id&gt; range ...</code>) and external summarization on ASBR (<code>summary-address ...</code>).</li>
+        <li><strong>Security drill:</strong> enable OSPF authentication, break one adjacency, document symptoms and fix.</li>
+        <li><strong>Virtual-link scenario:</strong> demonstrate Area 50 broken without Area 0 reachability, then restore via a virtual link through Area 40; verify with <code>show ip ospf virtual-links</code>.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Configs & Evidence</h2>
+      <p>
+        Full device configurations are linked as text files (kept separate to keep the page readable).
+      </p>
+      <ul>
+        <li><a href="configs/R1_config.txt" target="_blank">R1 config</a></li>
+        <li><a href="configs/R2_config.txt" target="_blank">R2 config</a></li>
+        <li><a href="configs/R3_config.txt" target="_blank">R3 config</a></li>
+        <li><a href="configs/R4_config.txt" target="_blank">R4 config</a></li>
+        <li><a href="configs/R5_config.txt" target="_blank">R5 config</a></li>
+        <li><a href="configs/R6_config.txt" target="_blank">R6 config</a></li>
+        <li><a href="configs/R7_config.txt" target="_blank">R7 config</a></li>
+        <li><a href="configs/R8_config.txt" target="_blank">R8 config</a></li>
+        <li><a href="configs/R9_config.txt" target="_blank">R9 config</a></li>
+        <li><a href="configs/R10_config.txt" target="_blank">R10 config</a></li>
+        <li><a href="configs/R11_config.txt" target="_blank">R11 config</a></li>
+        <li><a href="configs/R12_config.txt" target="_blank">R12 config</a></li>
+        <li><a href="configs/R13_config.txt" target="_blank">R13 (ISP) config</a></li>
+      </ul>
+    </section>
+  </div>
+</body>
+</html>

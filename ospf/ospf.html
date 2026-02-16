@@ -102,11 +102,11 @@
       </details>
 
       <details>
-        <summary><strong>Physical layout (GNS3-friendly)</strong></summary>
+        <summary><strong>Physical layout</strong></summary>
         <div class="panel">
           <ul>
             <li>Core ring (p2p): R1–R2–R3–R4–R1.</li>
-            <li>Area 10 broadcast LAN (DR/BDR): connect R3, R5, R6, R11 to “SW-Area10” (10.10.10.0/24).</li>
+            <li>Area 10 broadcast LAN (DR/BDR): connect R3, R5, R6, R11 to “SW-1” (10.10.10.0/24).</li>
             <li>Area 20 chain: R4–R7–R8.</li>
             <li>Area 30 chain + external: R2–R9–R10–R12.</li>
             <li>Area 40 remote: R11–R13.</li>
@@ -151,10 +151,6 @@ R2 ---- R9 ---- R10 ---- R12 (EIGRP external)
         <summary><strong>Task 1 – Build OSPFv2 Area 0 (Backbone)</strong></summary>
         <div class="panel qa">
           <p><strong>Goal:</strong> Establish OSPFv2 in Area 0 across the core ring and validate neighbor formation, LSDB, and route installation.</p>
-          <h4>Questions to answer / document</h4>
-          <ul>
-            <li>What LSAs are present in Area 0 at this stage (Types 1 and 2)?</li>
-            <li>How does the router-id affect adjacency if you change it?</li>
           </ul>
         </div>
       </details>
@@ -162,63 +158,66 @@ R2 ---- R9 ---- R10 ---- R12 (EIGRP external)
       <details>
         <summary><strong>Task 2 – Area 10 + DR/BDR behavior</strong></summary>
         <div class="panel">
-          <p class="muted">I will document DR/BDR election results, why they won (priority vs router-id), and the Type-2 LSA observations.</p>
+          <p><strong>Goal:</strong> Build Area 10 and practice DR/BDR elections.</p>
         </div>
       </details>
 
       <details>
         <summary><strong>Task 3 – Area 20 totally stubby</strong></summary>
         <div class="panel">
-          <p class="muted">I will document routing table reduction and default-route behavior in the stub routers.</p>
+          <p><strong>Goal:</strong> Configure Area 20 as a totally stubby area.</p>
         </div>
       </details>
 
       <details>
         <summary><strong>Task 4 – Area 30 NSSA + ASBR redistribution</strong></summary>
         <div class="panel">
-          <p class="muted">I will document Type-7 behavior in the NSSA and translation to Type-5 outside.</p>
+          <p><strong>Goal:</strong> Demonstrate NSSA behavior with Type 7 LSAs and ASBR.</p>
         </div>
       </details>
 
       <details>
         <summary><strong>Task 5 – Virtual link to Area 40</strong></summary>
         <div class="panel">
-          <p class="muted">I will document broken reachability before the virtual link and restored reachability after.</p>
-        </div>
-      </details>
-    </section>
-
-    <!-- ANSWERS AT THE BOTTOM (dropdown placeholders) -->
-    <section>
-      <h2>Task answers (results)</h2>
-
-      <details open>
-        <summary><strong>Task 1 – Answers</strong></summary>
-        <div class="panel">
-          <div class="answer">
-            <p class="muted">
-              Write your answers here. Example structure:
-              what you changed, what you expected, what you observed, what you concluded.
-            </p>
-          </div>
+          <p><strong>Goal:</strong> Connect Area 40 to Area 0 using a virtual link through Area 10.</p>
         </div>
       </details>
 
       <details>
-        <summary><strong>Task 2 – Answers</strong></summary>
+        <summary><strong>Task 6 – Implement OSPFv2 summarization</strong></summary>
         <div class="panel">
-          <div class="answer"><p class="muted">Add your DR/BDR election notes and proof here.</p></div>
+          <p><strong>Goal:</strong> Reduce LSDB size and routing table entries using summarization on (ABR -10,20,30) and ASBR.</p>
         </div>
       </details>
 
       <details>
-        <summary><strong>Task 3 – Answers</strong></summary>
+        <summary><strong>Task 7 – OSPFv2 authentication</strong></summary>
         <div class="panel">
-          <div class="answer"><p class="muted">Add your totally-stubby verification notes here.</p></div>
+          <p><strong>Goal:</strong> Area‑wide and per‑interface authentication.</p>
         </div>
       </details>
+
+            <details>
+        <summary><strong>Task 8 – OSPF route filtering </strong></summary>
+        <div class="panel">
+          <p><strong>Goal:</strong> Prevent specific Area 10 loopbacks from entering Area 0
+            And filter some external routes from NSSA into Area 0.</p>
+        </div>
+      </details>
+
+            <details>
+        <summary><strong>Task 9 – OSPFv3 / IPv6 tasks</strong></summary>
+        <div class="panel">
+          <p><strong>Goal:</strong> Basic OSPFv3 dual‑stack.</p>
+        </div>
+      </details>
+
+  
+
+
     </section>
 
+    
     <section>
       <h2>Configs & Evidence</h2>
       <p>Full configurations are linked as text files to keep the page readable.</p>
@@ -236,6 +235,7 @@ R2 ---- R9 ---- R10 ---- R12 (EIGRP external)
         <li><a href="configs/R11_config.txt" target="_blank">R11 config</a></li>
         <li><a href="configs/R12_config.txt" target="_blank">R12 config</a></li>
         <li><a href="configs/R13_config.txt" target="_blank">R13 config</a></li>
+        <li><a href="configs/gn3_image.png" target="_blank">GNS3 Image</a></li>
       </ul>
     </section>
 

@@ -1,0 +1,57 @@
+
+hostname R1
+!
+
+interface Loopback0
+ ip address 172.16.0.1 255.255.255.255
+!
+interface GigabitEthernet0/0
+ ip address 10.0.0.1 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:1::1/64
+!
+interface GigabitEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/2
+ ip address 10.0.0.13 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:13::13/64
+!
+interface GigabitEthernet0/3
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!         
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospf 1
+ router-id 1.1.1.1
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.12 0.0.0.3 area 0
+ network 172.16.0.1 0.0.0.0 area 0
+

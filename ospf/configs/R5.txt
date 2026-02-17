@@ -1,0 +1,60 @@
+
+hostname R5
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback10
+ ip address 172.16.10.5 255.255.255.255
+!
+interface GigabitEthernet0/0
+ ip address 10.10.10.2 255.255.255.0
+ ip ospf message-digest-key 1 md5 Password
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:10:2::2/64
+!
+interface GigabitEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospf 1
+ router-id 5.5.5.5
+ area 10 authentication message-digest
+ network 10.10.10.0 0.0.0.255 area 10
+ network 172.16.10.5 0.0.0.0 area 10
+!
+

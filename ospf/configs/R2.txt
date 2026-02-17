@@ -1,0 +1,67 @@
+
+hostname R2
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+
+!
+interface Loopback0
+ ip address 172.16.0.2 255.255.255.255
+!
+interface GigabitEthernet0/0
+ ip address 10.0.0.2 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:2::2/64
+!
+interface GigabitEthernet0/1
+ ip address 10.30.0.1 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:1::1/64
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ ip address 10.0.0.5 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:0:5::5/64
+!
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospf 1
+ router-id 2.2.2.2
+ area 30 nssa
+ area 30 range 172.16.30.0 255.255.255.0
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.4 0.0.0.3 area 0
+ network 10.30.0.0 0.0.0.3 area 30
+ network 172.16.0.2 0.0.0.0 area 0
+!
+

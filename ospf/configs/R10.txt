@@ -1,0 +1,68 @@
+
+hostname R10
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+
+interface Loopback0
+ no ip address
+!
+interface Loopback30
+ ip address 172.16.30.10 255.255.255.255
+!
+interface GigabitEthernet0/0
+ ip address 10.30.0.6 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:30:6::6/64
+!
+interface GigabitEthernet0/1
+ ip address 192.168.12.1 255.255.255.0
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+!
+router eigrp 1
+ network 192.168.12.0
+!
+router ospf 1
+ router-id 10.10.10.10
+ area 30 nssa
+ redistribute eigrp 1 subnets
+ network 10.30.0.4 0.0.0.3 area 30
+ network 172.16.30.10 0.0.0.0 area 30
+!
+

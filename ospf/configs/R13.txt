@@ -1,0 +1,57 @@
+hostname R13
+
+ipv6 unicast-routing
+ipv6 cef
+!
+
+interface Loopback40
+ ip address 172.16.40.13 255.255.255.255
+!
+interface GigabitEthernet0/0
+ ip address 10.40.0.2 255.255.255.252
+ ip ospf network point-to-point
+ duplex auto
+ speed auto
+ media-type rj45
+ ipv6 address 2001:DB8:40:2::2/64
+!
+interface GigabitEthernet0/1
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/2
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/3
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/4
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+interface GigabitEthernet0/5
+ no ip address
+ shutdown
+ duplex auto
+ speed auto
+ media-type rj45
+!
+router ospf 1
+ router-id 13.13.13.13
+ network 10.40.0.0 0.0.0.3 area 40
+ network 172.16.40.13 0.0.0.0 area 40
+

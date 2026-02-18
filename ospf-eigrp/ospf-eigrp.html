@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OSPF + EIGRP Lab</title>
+
+  <!-- IMPORTANT: ospf-eigrp.html is in the SAME folder as style.css -->
+  <link rel="stylesheet" href="../style.css" />
+
+  <style>
+    details { margin-top: 12px; }
+    summary { cursor: pointer; color: #79c0ff; list-style: none; }
+    summary::-webkit-details-marker { display: none; }
+
+    .panel {
+      margin-top: 10px;
+      padding: 14px;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      background: rgba(22, 27, 34, 0.65);
+    }
+
+    pre {
+      white-space: pre;
+      overflow-x: auto;
+      background: rgba(22, 27, 34, 0.85);
+      padding: 14px;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+    }
+
+    .muted { color: #8b949e; }
+    code { color: #79c0ff; }
+  </style>
+</head>
+
+<body>
+  <!-- Background (MATCHES your OSPF Enterprise page) -->
+  <div class="network-bg">
+    <div id="r1" class="device router"></div>
+    <div id="r2" class="device router"></div>
+    <div id="core-sw" class="device switch"></div>
+    <div id="r3" class="device router"></div>
+    <div id="r4" class="device router"></div>
+
+    <div class="cable link-v-top"><div class="packet"></div></div>
+    <div class="cable link-v-btm"><div class="packet"></div></div>
+    <div class="cable link-h-left"><div class="packet"></div></div>
+    <div class="cable link-h-right"><div class="packet"></div></div>
+  </div>
+
+  <div class="content-container">
+    <h1>OSPF + EIGRP (Dual Redistribution)</h1>
+    <p><a href="../index.html">← Back to Home</a></p>
+
+    <section>
+      <h2>What I’m building</h2>
+      <p>
+        I’m building a single GNS3 lab that combines an enterprise-style multi-area OSPF design with an EIGRP domain,
+        then tying them together using dual redistribution so I can practice ENARSI-level routing and troubleshooting.
+      </p>
+      <ul>
+        <li>OSPF: multi-area, stub/totally-stub, NSSA, DR/BDR on multi-access, authentication, summarization, virtual-link scenario.</li>
+        <li>EIGRP: named-mode (or classic if required), stubs, unequal-cost load balancing (variance), summarization.</li>
+        <li>Redistribution: route-maps, tagging, feedback-loop prevention, primary/backup fusion points.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Topology</h2>
+      <p class="muted">Expand to view the design and build notes.</p>
+
+      <details open>
+        <summary><strong>ASCII map</strong></summary>
+        <div class="panel">
+<pre>
+                 OSPF AREA 0 (Backbone)
+            R1 -------- R2
+             \          /
+              \        /
+               R3 ---- R4
+                |       |
+                |       +----------------- Area 20 (Totally Stub) ---- R7 ---- R8
+                |
+     Area 30 (NSSA/DMZ) R9 ---- R10 (DMZ ASBR)
+
+        Area 10 (Transit) on SW1 (multi-access)
+            R3 ---\
+            R4 ----+--- SW1 (VLAN100 transit)
+            R5 ---/ \
+                  \-- R6 (ABR for Area 40 via Area 10; virtual-link scenario)
+
+        Area 40 (Remote)
+            R6 ---- R11 ---- R12
+
+                 EIGRP AS 100
+            E1 ===== E2
+             | \     / |
+            E4  E3  E5
+               \     /
+                 E6
+
+Dual redistribution points:
+  - R3 <-> E1  (Fusion-A)
+  - R4 <-> E2  (Fusion-B)
+</pre>
+        </div>
+      </details>
+    </section>
+
+        <section>
+      <h2>Configs & Evidence</h2>
+      <p>Full configurations and solutions are linked as text files to keep the page readable.</p>
+      <ul>
+        <li><a href="configs/gn3_image.png" target="_blank">GNS3 Image</a></li>
+      </ul>
+    </section>
+
+  </div>
+</body>
+</html>
